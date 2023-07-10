@@ -1,0 +1,28 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 6rem;
+  min-height: 100vh;
+  gap: 8px;
+}
+
+hr {
+  margin: 8px 0;
+}
+
+section {
+  border: 2px solid gray;
+  padding: 4px;
+}
+
+h2 {
+  margin-bottom: 8px;
+}
+
+button {
+  padding: 2px 4px;
+  min-width: 20px;
+  margin: 0 4px;
+}

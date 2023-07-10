@@ -1,95 +1,64 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
+
+import { useCallback, useMemo } from "react";
+import "./index.css";
+import useAsync from "./useAsync";
+import useCounter from "./useCounter";
+import ScrollTop from "./components/ScrollTop";
 
 export default function Home() {
+  /// 1 自定义hook
+  const { count, add, minus, reset } = useCounter(100);
+  const {
+    count: count2,
+    add: add2,
+    minus: minus2,
+    reset: reset2,
+  } = useCounter(0);
+  // 缓存计算结果，当依赖项改变时才重新计算
+  const total = useMemo(() => count + count2, [count, count2]);
+
+  /// 2 常见自定义hook使用场景1
+  const action = useCallback(async () => {
+    const response = await fetch("https://pokeapi.co/api/v2/pokemon/255");
+    const json = await response.json();
+    return json.sprites;
+  }, []);
+  const { loading, error, data, execute } = useAsync(action);
+
+  /// 3 常见自定义hook使用场景2，详见 ScrollTop 组件
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    <>
+      <main className="main">
+        <section>
+          <h2>Count: {count}</h2>
+          <button onClick={add}>+</button>
+          <button onClick={minus}>-</button>
+          <button onClick={reset}>Reset</button>
+          <hr />
+          <h2>Count2: {count2}</h2>
+          <button onClick={add2}>+</button>
+          <button onClick={minus2}>-</button>
+          <button onClick={reset2}>Reset</button>
+          <hr />
+          <h2>TOTAL: {total}</h2>
+        </section>
+        <section>
+          {loading ? (
+            <div>LOADING...</div>
+          ) : error ? (
+            <div>ERROR!</div>
+          ) : (
+            <pre
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(data, null, 2),
+              }}
             />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore the Next.js 13 playground.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
+          )}
+        </section>
+      </main>
+      <ScrollTop />
+    </>
+  );
 }
